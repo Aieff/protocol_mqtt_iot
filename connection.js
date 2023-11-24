@@ -1,31 +1,40 @@
 const mqtt = require('mqtt');
 
-const client = mqtt.connect('ws://687af6d6752b4d1ea326b5ff8a11281a.s1.eu.hivemq.cloud:8884/mqtt');
+// Configurações do broker MQTT
+const mqttServer = 'a6c778c2dc0d4e97979552edaf3f2614.s2.eu.hivemq.cloud';
+const mqttPort = 8883;
+const mqttUsername = 'gabrieladmin'; // Substitua pelo seu nome de usuário MQTT
+const mqttPassword = 'Gabriel1@';  // Substitua pela sua senha MQTT
 
-client.on('connect', () => {
+// Configurações do cliente MQTT
+const clientId = 'administrador';
+const topic = 'administrador';  // Substitua pelo tópico desejado
 
-  console.log('Connected to MQTT Broker');
-
-  client.subscribe('tópico');
-
+// Criação do cliente MQTT
+const client = mqtt.connect(`mqtts://${mqttServer}:${mqttPort}`, {
+  clientId: clientId,
+  username: mqttUsername,
+  password: mqttPassword
 });
 
-client.on('message', (topic, message) => {
+// Função chamada quando a conexão é estabelecida
+client.on('connect', function () {
+  console.log('Conectado ao broker MQTT');
+  
+  // Publica uma mensagem no tópico especificado
+  client.publish(topic, 'Olá, ESP8266! Esta é uma mensagem do JavaScript.', function (err) {
+    if (!err) {
+      console.log('Mensagem enviada com sucesso!');
+    } else {
+      console.error('Erro ao enviar mensagem:', err);
+    }
 
-  console.log(`Received message on topic: ${topic}. Message: ${message.toString()}`);
-
-  // Faça o que quiser com a mensagem recebida
-
+    // Encerra a conexão após publicar a mensagem (opcional)
+    client.end();
+  });
 });
 
-// Publicar uma mensagem
-
-client.publish('tópico', 'Você realizou uma conexão e enviou a mensagem');
-
-// Para lidar com erros
-
-client.on('error', (error) => {
-
-  console.log(`Erro: ${error}`);
-
+// Função chamada quando ocorre um erro na conexão
+client.on('error', function (error) {
+  console.error('Erro na conexão:', error);
 });
