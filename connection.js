@@ -20,7 +20,10 @@ const client = mqtt.connect(`mqtts://${mqttServer}:${mqttPort}`, {
 // Função chamada quando a conexão é estabelecida
 client.on('connect', function () {
   console.log('Conectado ao broker MQTT');
-  
+
+  // Inscreve-se no tópico para receber mensagens
+  client.subscribe(topic);
+
   // Publica uma mensagem no tópico especificado
   client.publish(topic, 'Olá, ESP8266! Esta é uma mensagem do JavaScript.', function (err) {
     if (!err) {
@@ -28,10 +31,14 @@ client.on('connect', function () {
     } else {
       console.error('Erro ao enviar mensagem:', err);
     }
-
-    // Encerra a conexão após publicar a mensagem (opcional)
-    client.end();
   });
+});
+
+// Função chamada quando uma mensagem é recebida
+client.on('message', function (receivedTopic, message) {
+  console.log(`Mensagem recebida no tópico ${receivedTopic}: ${message.toString()}`);
+
+  // Adicione aqui o código para lidar com a mensagem recebida no ESP8266
 });
 
 // Função chamada quando ocorre um erro na conexão
